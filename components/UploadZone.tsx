@@ -178,7 +178,18 @@ export default function UploadZone() {
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <Typography color="error">{error}</Typography>
+                <Typography color="error" sx={{ mb: 1 }}>{error}</Typography>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  onClick={() => {
+                    setError(null);
+                    if (selectedFile) uploadFile(selectedFile);
+                  }}
+                >
+                  Try again
+                </Button>
               </motion.div>
             )}
           </AnimatePresence>

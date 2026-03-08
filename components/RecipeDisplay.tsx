@@ -376,21 +376,25 @@ export default function RecipeDisplay({
                     </Box>
                     <ListItemText
                       primary={
-                        <Typography
-                          variant="body1"
-                          fontWeight={index === currentStep ? 600 : 400}
+                        <Box
+                          sx={{ display: "inline-flex", alignItems: "center", flexWrap: "wrap", gap: 0.5 }}
                         >
-                          {step.instruction}
+                          <Typography
+                            variant="body1"
+                            fontWeight={index === currentStep ? 600 : 400}
+                            component="span"
+                          >
+                            {step.instruction}
+                          </Typography>
                           {step.duration_minutes != null && (
                             <Chip
                               size="small"
                               icon={<AccessTime />}
                               label={`${step.duration_minutes} min`}
-                              sx={{ ml: 1 }}
                               variant="outlined"
                             />
                           )}
-                        </Typography>
+                        </Box>
                       }
                       secondary={
                         step.tips.length > 0 ? (

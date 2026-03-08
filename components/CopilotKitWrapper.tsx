@@ -2,7 +2,11 @@
 
 import { useState, useCallback } from "react";
 import { CopilotKit } from "@copilotkit/react-core";
+import { CopilotSidebar } from "@copilotkit/react-ui";
 import { createContext, useContext, type ReactNode } from "react";
+import { VoiceInputProvider } from "@/contexts/VoiceInputContext";
+import CopilotVoiceInput from "@/components/CopilotVoiceInput";
+import ChatErrorAlert from "@/components/ChatErrorAlert";
 
 interface ThreadContextValue {
   threadId: string | null;
@@ -30,8 +34,25 @@ export default function CopilotKitWrapper({ children }: { children: ReactNode })
         agent={agentName}
         runtimeUrl="/api/copilotkit"
         threadId={threadId ?? undefined}
+        credentials="include"
       >
-        {children}
+        <VoiceInputProvider>
+          <CopilotSidebar
+            clickOutsideToClose={false}
+            Input={CopilotVoiceInput as any}
+            renderError={(props) => (
+              <ChatErrorAlert
+                message={props.message}
+                operation={props.operation}
+                timestamp={props.timestamp}
+                onDismiss={props.onDismiss}
+                onRetry={props.onRetry}
+              />
+            )}
+          >
+            {children}
+          </CopilotSidebar>
+        </VoiceInputProvider>
       </CopilotKit>
     </ThreadContext.Provider>
   );

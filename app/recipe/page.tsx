@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Box,
@@ -15,13 +15,13 @@ import {
 } from "@mui/material";
 import { ArrowBack, Restaurant, SmartToy } from "@mui/icons-material";
 import { useCoAgent } from "@copilotkit/react-core";
+import { useChatContext } from "@copilotkit/react-ui";
 import RecipeDisplay from "@/components/RecipeDisplay";
 import VoiceInput from "@/components/VoiceInput";
 import type { RecipeContext as RecipeContextType, Recipe } from "@/app/types";
 import { useRecipeApp } from "@/contexts/RecipeContext";
 import { PENDING_RECIPE_KEY } from "@/app/config";
-import { scaleRecipe } from "@/utils/recipe";
-import { CopilotSidebar } from "@copilotkit/react-ui";
+import { scaleRecipe, applyAgentSubstitutionsToRecipe } from "@/utils/recipe";
 
 export default function RecipePage() {
   const router = useRouter();
@@ -34,26 +34,9 @@ export default function RecipePage() {
   const [hasCheckedStorage, setHasCheckedStorage] = useState(false);
   const [hadPendingData, setHadPendingData] = useState(false);
   const [stepOverride, setStepOverride] = useState<number | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const prevSidebarOpen = useRef(false);
-  const userRequestedToggle = useRef(false);
+  const { open: chatOpen, setOpen: setChatOpen } = useChatContext();
 
-  // Sync our "open" intent with the sidebar by triggering its internal toggle (no remount = smooth transition).
-  // Only trigger when the user clicked our button, not when the sidebar called onSetOpen (e.g. click outside).
-  useEffect(() => {
-    if (prevSidebarOpen.current === sidebarOpen) return;
-    prevSidebarOpen.current = sidebarOpen;
-    if (!userRequestedToggle.current) return;
-    userRequestedToggle.current = false;
-    const toggle =
-      document.querySelector(".copilotKitSidebar .copilotKitButton") as HTMLElement | null;
-    if (toggle) toggle.click();
-  }, [sidebarOpen]);
-
-  const onToggleChat = () => {
-    userRequestedToggle.current = true;
-    setSidebarOpen((o) => !o);
-  };
+  const onToggleChat = () => setChatOpen(!chatOpen);
 
   const agentName =
     process.env.NEXT_PUBLIC_COPILOT_AGENT_NAME || "agenticChatAgent";
@@ -64,7 +47,38 @@ export default function RecipePage() {
     ...(threadId && { threadId }),
   });
 
-  // Prefer agent state when synced; fall back to context. When user has scaled, prefer context recipe.
+  // When the agent returns state (from stream), merge it into recipeState so the UI updates.
+  // If the agent did a substitution, it usually only updates ingredients; apply the same name
+  // changes to instructions, tips, and description so substitution appears everywhere.
+  useEffect(() => {
+    if (!state || !recipeState.recipe) return;
+    setRecipeState((prev) => {
+      const agentRecipe = state.recipe ?? prev.recipe;
+      const recipe =
+        agentRecipe && prev.recipe
+          ? applyAgentSubstitutionsToRecipe(agentRecipe, prev.recipe)
+          : agentRecipe;
+      return {
+        ...prev,
+        document_text: state.document_text ?? prev.document_text,
+        recipe,
+        current_step: state.current_step ?? prev.current_step,
+        scaled_servings: state.scaled_servings ?? prev.scaled_servings,
+        checked_ingredients: state.checked_ingredients ?? prev.checked_ingredients,
+        cooking_started: state.cooking_started ?? prev.cooking_started,
+      };
+    });
+  }, [
+    state?.document_text,
+    state?.recipe,
+    state?.current_step,
+    state?.scaled_servings,
+    state?.checked_ingredients,
+    state?.cooking_started,
+    setRecipeState,
+  ]);
+
+  // Prefer agent state when synced; fall back to context.
   const displayRecipe =
     recipeState.scaled_servings != null && recipeState.recipe
       ? recipeState.recipe
@@ -145,19 +159,19 @@ export default function RecipePage() {
 
   if (!displayRecipe) {
     return (
-			<Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', p: 3 }}>
-				<Box sx={{ textAlign: 'center' }}>
-					<Typography variant="h5" gutterBottom>
-						No recipe loaded
-					</Typography>
-					<Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-						Upload a recipe first to view this page.
-					</Typography>
-					<Button variant="contained" onClick={() => router.push('/')}>
-						Back to Home
-					</Button>
-				</Box>
-			</Box>
+      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', p: 3 }}>
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography variant="h5" gutterBottom>
+            No recipe loaded
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+            Upload a recipe first to view this page.
+          </Typography>
+          <Button variant="contained" onClick={() => router.push('/')}>
+            Back to Home
+          </Button>
+        </Box>
+      </Box>
     );
   }
 
@@ -178,12 +192,13 @@ export default function RecipePage() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {displayRecipe.title || "Recipe"}
           </Typography>
+
           <VoiceInput />
           <Tooltip title="Open AI Cooking Assistant">
             <IconButton
               color="inherit"
               onClick={onToggleChat}
-              aria-label={sidebarOpen ? "Close AI Cooking Assistant" : "Open AI Cooking Assistant"}
+              aria-label="Open AI Cooking Assistant"
             >
               <SmartToy />
             </IconButton>
@@ -202,13 +217,6 @@ export default function RecipePage() {
           onToggleChat={onToggleChat}
         />
       </Container>
-
-      <CopilotSidebar
-        defaultOpen={false}
-        onSetOpen={setSidebarOpen}
-        clickOutsideToClose
-        labels={{ title: "Cooking assistant", initial: "Ask for scaling, substitutions, or next steps…" }}
-      />
     </Box>
   );
 }
