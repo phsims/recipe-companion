@@ -19,6 +19,8 @@ const initialRecipeState: RecipeContextType = {
   cooking_started: false,
 };
 
+export { initialRecipeState };
+
 interface RecipeAppValue {
   recipeState: RecipeContextType;
   setRecipeState: (s: RecipeContextType | ((prev: RecipeContextType) => RecipeContextType)) => void;

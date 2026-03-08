@@ -19,7 +19,7 @@ import { useChatContext } from "@copilotkit/react-ui";
 import RecipeDisplay from "@/components/RecipeDisplay";
 import VoiceInput from "@/components/VoiceInput";
 import type { RecipeContext as RecipeContextType, Recipe } from "@/app/types";
-import { useRecipeApp } from "@/contexts/RecipeContext";
+import { useRecipeApp, initialRecipeState } from "@/contexts/RecipeContext";
 import { PENDING_RECIPE_KEY } from "@/app/config";
 import { scaleRecipe, applyAgentSubstitutionsToRecipe } from "@/utils/recipe";
 
@@ -117,6 +117,13 @@ export default function RecipePage() {
     });
   };
 
+  const handleBackToHome = () => {
+    setRecipeState(initialRecipeState);
+    setThreadId(null);
+    if (typeof window !== "undefined") sessionStorage.removeItem(PENDING_RECIPE_KEY);
+    router.push("/");
+  };
+
   // Hydrate from sessionStorage on mount (for client nav / refresh)
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -167,7 +174,7 @@ export default function RecipePage() {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
             Upload a recipe first to view this page.
           </Typography>
-          <Button variant="contained" onClick={() => router.push('/')} aria-label="Go back to home page">
+          <Button variant="contained" onClick={handleBackToHome} aria-label="Go back to home page">
             Back to Home
           </Button>
         </Box>
@@ -182,7 +189,7 @@ export default function RecipePage() {
           <IconButton
             color="inherit"
             edge="start"
-            onClick={() => router.push("/")}
+            onClick={handleBackToHome}
             sx={{ mr: 2 }}
             aria-label="Back to home"
           >

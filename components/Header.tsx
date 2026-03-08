@@ -1,12 +1,27 @@
 'use client';
 
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AppBar, Toolbar, Tooltip, IconButton, Alert, Button } from "@mui/material";
 import { useBackendHealth } from "@/hooks/useBackendHealth";
+import { useRecipeApp, initialRecipeState } from "@/contexts/RecipeContext";
+import { useThread } from "@/components/CopilotKitWrapper";
+import { PENDING_RECIPE_KEY } from "@/app/config";
 import { CloudDone, CloudOff, HourglassEmpty, Refresh } from "@mui/icons-material";
 
 export default function Header() {
+  const router = useRouter();
+  const { setRecipeState } = useRecipeApp();
+  const { setThreadId } = useThread();
   const { status: backendStatus, error: healthError, check: checkHealth } = useBackendHealth();
+
+  const handleBackToHome = () => {
+    setRecipeState(initialRecipeState);
+    setThreadId(null);
+    if (typeof window !== "undefined") sessionStorage.removeItem(PENDING_RECIPE_KEY);
+    router.push("/");
+  };
 
   const statusLabel =
     backendStatus === 'up'
@@ -21,14 +36,24 @@ export default function Header() {
     <>
       <AppBar position="static" sx={{ backgroundColor: 'background.paper', color: 'primary.main', borderBottom: '2px solid', borderColor: 'primary.dark' }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <Image
-            src="/logo.png"
-            width={216}
-            height={75}
-            alt="Recipe Companion"
-            style={{ marginTop: 8, marginBottom: 8 }}
-            loading="eager"
-          />
+          <Link
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              handleBackToHome();
+            }}
+            style={{ display: "block", lineHeight: 0 }}
+            aria-label="Recipe Companion – go to home"
+          >
+            <Image
+              src="/logo.png"
+              width={216}
+              height={75}
+              alt="Recipe Companion"
+              style={{ marginTop: 8, marginBottom: 8 }}
+              loading="eager"
+            />
+          </Link>
 
           <Tooltip title={statusLabel}>
             <IconButton
