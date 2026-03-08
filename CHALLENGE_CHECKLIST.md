@@ -33,6 +33,7 @@ Based on the [Code-Challenge](https://github.com/phsims/Code-Challenge) requirem
 | **Responsive design** | ✅ | MUI layout, `Container`, responsive patterns in `RecipeDisplay` and layout |
 | **Voice input** | ✅ | `components/VoiceInput.tsx` (Web Speech API), `contexts/VoiceInputContext.tsx`, `components/CopilotVoiceInput.tsx` – transcript sent to sidebar chat |
 | **Error handling** | ✅ | Upload: `UploadZone` error + "Try again" retry. Agent/chat: `ChatErrorAlert` in sidebar (`renderError`) with Dismiss + Retry. Network: `Header` backend banner + Retry when backend is down. |
+| **Accessibility** | ✅ | Skip link, `<main>` landmark, headings (h1/h2), aria-labels on buttons/inputs, keyboard (step list, focus), live/alert regions, progressbar. |
 
 ---
 
@@ -40,4 +41,3 @@ Based on the [Code-Challenge](https://github.com/phsims/Code-Challenge) requirem
 ## Optional next steps
 
 - [ ] Tests for upload, recipe display, and key utils (`scaleRecipe`, `applyAgentSubstitutionsToRecipe`).
-- [ ] Accessibility pass (labels, focus, keyboard for voice and chat).

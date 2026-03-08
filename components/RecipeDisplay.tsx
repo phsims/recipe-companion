@@ -219,21 +219,22 @@ export default function RecipeDisplay({
 
           {/* Progress Bar */}
           {currentStep >= 0 && recipe.steps.length > 0 && (
-            <Box mb={3}>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
+            <Box mb={3} role="progressbar" aria-valuenow={currentStep + 1} aria-valuemin={1} aria-valuemax={recipe.steps.length} aria-label={`Progress: Step ${currentStep + 1} of ${recipe.steps.length}`}>
+              <Typography variant="body2" color="text.secondary" gutterBottom id="progress-desc">
                 Progress: Step {currentStep + 1} of {recipe.steps.length}
               </Typography>
               <LinearProgress
                 variant="determinate"
                 value={progress}
                 sx={{ height: 8, borderRadius: 4 }}
+                aria-hidden
               />
             </Box>
           )}
 
           {/* Ingredients */}
-          <Box mb={3}>
-            <Typography variant="h6" gutterBottom fontWeight={600}>
+          <Box mb={3} component="section" aria-labelledby="ingredients-heading">
+            <Typography id="ingredients-heading" variant="h6" component="h2" gutterBottom fontWeight={600}>
               Ingredients
             </Typography>
             <List dense>
@@ -260,6 +261,9 @@ export default function RecipeDisplay({
                             checked={isChecked}
                             onChange={() => onIngredientCheck(ingredient.name)}
                             size="small"
+                            inputProps={{
+                              "aria-label": `${ingredient.name}, ${isChecked ? "checked" : "unchecked"}`,
+                            }}
                           />
                         )}
                         <ListItemText
@@ -336,8 +340,8 @@ export default function RecipeDisplay({
           </Popover>
 
           {/* Steps */}
-          <Box>
-            <Typography variant="h6" gutterBottom fontWeight={600}>
+          <Box component="section" aria-labelledby="instructions-heading">
+            <Typography id="instructions-heading" variant="h6" component="h2" gutterBottom fontWeight={600}>
               Instructions
             </Typography>
             <List>
@@ -351,6 +355,22 @@ export default function RecipeDisplay({
                   <ListItem
                     onClick={
                       onStepClick ? () => onStepClick(index) : undefined
+                    }
+                    onKeyDown={
+                      onStepClick
+                        ? (e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              onStepClick(index);
+                            }
+                          }
+                        : undefined
+                    }
+                    tabIndex={onStepClick ? 0 : undefined}
+                    aria-label={
+                      onStepClick
+                        ? `Step ${step.step_number}: ${step.instruction.slice(0, 60)}${step.instruction.length > 60 ? "…" : ""}`
+                        : undefined
                     }
                     sx={{
                       bgcolor:

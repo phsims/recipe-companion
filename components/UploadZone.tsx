@@ -121,12 +121,12 @@ export default function UploadZone() {
       >
         <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
           {uploading ? (
-            <>
-              <CircularProgress size={60} />
-              <Typography variant="h6" color="text.secondary">
+            <div aria-live="polite" aria-busy="true">
+              <CircularProgress size={60} aria-hidden />
+              <Typography variant="h6" color="text.secondary" id="upload-status">
                 Analyzing recipe...
               </Typography>
-            </>
+            </div>
           ) : (
             <>
               <CloudUpload sx={{ fontSize: 60, color: "primary.main" }} />
@@ -145,6 +145,7 @@ export default function UploadZone() {
                 onChange={handleFileSelect}
                 style={{ display: "none" }}
                 id="file-upload"
+                aria-label="Upload recipe document (PDF or text file)"
               />
               <label htmlFor="file-upload">
                 <Button
@@ -152,6 +153,7 @@ export default function UploadZone() {
                   component="span"
                   startIcon={<Description />}
                   size="large"
+                  aria-label="Select recipe file to upload (PDF or text)"
                 >
                   Select File
                 </Button>
@@ -173,6 +175,7 @@ export default function UploadZone() {
           <AnimatePresence>
             {error && (
               <motion.div
+                role="alert"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
@@ -187,6 +190,7 @@ export default function UploadZone() {
                     setError(null);
                     if (selectedFile) uploadFile(selectedFile);
                   }}
+                  aria-label="Try again to upload the selected file"
                 >
                   Try again
                 </Button>

@@ -146,10 +146,10 @@ export default function RecipePage() {
   // Loading: only while we haven't read sessionStorage yet
   if (!hasCheckedStorage) {
     return (
-      <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center", p: 3 }}>
+      <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center", p: 3 }} role="status" aria-live="polite" aria-busy="true">
         <Box sx={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-          <CircularProgress size={48} />
-          <Typography variant="body1" color="text.secondary">
+          <CircularProgress size={48} aria-hidden />
+          <Typography variant="body1" color="text.secondary" id="loading-recipe">
             Loading recipe...
           </Typography>
         </Box>
@@ -167,7 +167,7 @@ export default function RecipePage() {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
             Upload a recipe first to view this page.
           </Typography>
-          <Button variant="contained" onClick={() => router.push('/')}>
+          <Button variant="contained" onClick={() => router.push('/')} aria-label="Go back to home page">
             Back to Home
           </Button>
         </Box>
@@ -189,7 +189,7 @@ export default function RecipePage() {
             <ArrowBack />
           </IconButton>
           <Restaurant sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} aria-hidden="true">
             {displayRecipe.title || "Recipe"}
           </Typography>
 

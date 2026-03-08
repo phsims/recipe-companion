@@ -1,7 +1,7 @@
 'use client';
 
 import Image from "next/image";
-import { AppBar, Toolbar, Tooltip, IconButton, Box, Alert, Button } from "@mui/material";
+import { AppBar, Toolbar, Tooltip, IconButton, Alert, Button } from "@mui/material";
 import { useBackendHealth } from "@/hooks/useBackendHealth";
 import { CloudDone, CloudOff, HourglassEmpty, Refresh } from "@mui/icons-material";
 
@@ -35,10 +35,10 @@ export default function Header() {
               color="inherit"
               onClick={() => checkHealth()}
               aria-label={statusLabel}
-              sx={{ color: statusColor }}
+              sx={{ color: statusColor, "& svg": { fontSize: 28 } }}
               size="large"
             >
-              <StatusIcon />
+              <StatusIcon sx={{ fontSize: 28 }} />
             </IconButton>
           </Tooltip>
         </Toolbar>
@@ -54,6 +54,7 @@ export default function Header() {
               size="small"
               startIcon={<Refresh />}
               onClick={() => checkHealth()}
+              aria-label="Retry backend connection"
             >
               Retry
             </Button>

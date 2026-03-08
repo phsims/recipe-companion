@@ -48,6 +48,7 @@ export default function Home() {
           >
             <Typography
               variant="h3"
+              component="h1"
               align="center"
               gutterBottom
               fontWeight={700}

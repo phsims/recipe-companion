@@ -3,9 +3,9 @@ import { Montserrat } from "next/font/google";
 import ThemeRegistry from "./ThemeRegistry";
 import CopilotKitWrapper from "@/components/CopilotKitWrapper";
 import { RecipeProvider } from "@/contexts/RecipeContext";
+import AppReadyGate from "@/components/AppReadyGate";
 import "@copilotkit/react-ui/styles.css";
 import "./globals.css";
-import Header from "@/components/Header";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -30,8 +30,7 @@ export default function RootLayout({
         <ThemeRegistry>
           <CopilotKitWrapper>
             <RecipeProvider>
-              <Header />
-              {children}
+              <AppReadyGate>{children}</AppReadyGate>
             </RecipeProvider>
           </CopilotKitWrapper>
         </ThemeRegistry>
